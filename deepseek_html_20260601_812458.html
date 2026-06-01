@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>玉润修坊 · 员工销售登记系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f0e8 0%, #ede3d6 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        .app-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ede3d6;
+        }
+        .header h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: #4a3a2a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .login-area {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #f5ede1;
+            padding: 8px 15px;
+            border-radius: 30px;
+            flex-wrap: wrap;
+        }
+        select, input, button {
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1.5px solid #cfbc9f;
+            font-size: 0.9rem;
+            outline: none;
+            background: white;
+        }
+        button {
+            background: linear-gradient(135deg, #b39774, #8b6f50);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 111, 80, 0.3);
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: #f3ede4;
+            border: 1px solid #cfbc9f;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: #b39774;
+            color: white;
+            border-color: #8b6f50;
+        }
+        .form-section {
+            display: none;
+            background: #fdfaf6;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #ede3d6;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6b5a45;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            background: white;
+        }
+        .btn-full {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+        .data-table {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            min-width: 900px;
+        }
+        th {
+            background: #f3ede4;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #4a3a2a;
+            font-size: 0.8rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #ede3d4;
+            background: white;
+        }
+        tr:hover td {
+            background: #fdf7f0;
+        }
+        .btn-small {
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            margin: 2px;
+        }
+        .btn-danger {
+            background: #c44;
+        }
+        .match-box {
+            background: #f0ebe1;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            border-left: 4px solid #b39774;
+            display: none;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #fdfaf6, #f5ede1);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #e7dacb;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4a3a2a;
+            margin: 8px 0;
+        }
+        .chart-bar {
+            margin: 15px 0;
+        }
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+        .bar-bg {
+            background: #ede3d6;
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .badge {
+            background: #d9c8b2;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🍃 玉润修坊</h1>
+            <div id="loginPanel" class="login-area">
+                <select id="userSelect">
+                    <option value="员工A">员工A</option>
+                    <option value="员工B">员工B</option>
+                    <option value="员工C">员工C</option>
+                    <option value="admin">管理员</option>
+                </select>
+                <input type="password" id="passwordInput" placeholder="密码" size="10">
+                <button onclick="login()">🔐 登录</button>
+            </div>
+            <div id="userPanel" class="hidden" style="display:flex; gap:10px; align-items:center;">
+                <span class="badge" id="currentUserDisplay"></span>
+                <button onclick="logout()" style="background:#8b6f50;">退出</button>
+            </div>
+        </div>
+
+        <!-- 主内容 -->
+        <div id="appContent" class="hidden">
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('open')">📋 开单登记</button>
+                <button class="tab-btn" onclick="switchTab('payment')">💳 收款登记</button>
+                <button class="tab-btn" onclick="switchTab('stats')">📊 销售统计</button>
+                <button class="tab-btn admin-only hidden" onclick="switchTab('employee')">👥 员工管理</button>
+            </div>
+
+            <!-- 开单登记 -->
+            <div id="tabOpen" class="form-section active">
+                <h3 style="margin-bottom:15px;">📋 新增开单记录</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>👤 员工姓名</label><input type="text" id="empName" required></div>
+                    <div class="form-group"><label>📅 开单日期</label><input type="date" id="orderDate" required></div>
+                    <div class="form-group"><label>🧑 客户信息</label><input type="text" id="clientInfo" placeholder="客户姓名/公司" required></div>
+                    <div class="form-group"><label>📞 客户电话</label><input type="tel" id="clientPhone" placeholder="手机号码" required></div>
+                    <div class="form-group"><label>🔢 玉器数量</label><input type="number" id="jadeCount" value="1" min="1"></div>
+                    <div class="form-group"><label>💔 破损情况</label><input type="text" id="damageDesc" placeholder="例如：断镯、裂纹"></div>
+                    <div class="form-group"><label>💰 修复金额 (元)</label><input type="number" id="repairAmount" step="0.01" placeholder="0.00"></div>
+                    <div class="form-group"><label>📍 具体地址</label><input type="text" id="address" placeholder="省市区详细地址"></div>
+                </div>
+                <button class="btn-full" onclick="submitOpen()">📋 提交开单登记</button>
+            </div>
+
+            <!-- 收款登记 -->
+            <div id="tabPayment" class="form-section">
+                <h3 style="margin-bottom:15px;">💳 收款匹配登记</h3>
+                <div class="form-group" style="margin-bottom:15px;">
+                    <label>📞 输入客户电话（自动匹配开单记录）</label>
+                    <input type="tel" id="searchPhone" placeholder="输入电话号码" style="font-size:1.1rem;">
+                </div>
+                <div id="matchInfo" class="match-box"></div>
+                <div class="form-grid">
+                    <div class="form-group"><label>✅ 是否签收</label><div style="display:flex;align-items:center;gap:8px;margin-top:8px;"><input type="checkbox" id="isSigned" style="width:auto;"><span>已签收</span></div></div>
+                    <div class="form-group"><label>📦 收货日期</label><input type="date" id="receiveDate"></div>
+                    <div class="form-group"><label>💳 收款日期</label><input type="date" id="paymentDate"></div>
+                    <div class="form-group"><label>💵 实收金额</label><input type="number" id="actualAmount" step="0.01"></div>
+                    <div class="form-group"><label>🔧 维修金额</label><input type="number" id="maintenanceAmount" step="0.01"></div>
+                    <div class="form-group"><label>🚚 邮费</label><input type="number" id="postage" step="0.01" value="0"></div>
+                    <div class="form-group"><label>✨ 增值金额</label><input type="number" id="appreciationAmount" step="0.01" value="0"></div>
+                </div>
+                <button class="btn-full" onclick="submitPayment()">💳 提交收款登记</button>
+            </div>
+
+            <!-- 销售统计 -->
+            <div id="tabStats" class="form-section">
+                <h3 style="margin-bottom:15px;">📊 销售数据统计</h3>
+                <div style="margin-bottom:15px;">
+                    <label>选择月份：</label>
+                    <input type="month" id="statsMonth" onchange="renderStats()">
+                </div>
+                <div id="statsContent"></div>
+            </div>
+
+            <!-- 员工管理 -->
+            <div id="tabEmployee" class="form-section admin-only hidden">
+                <h3 style="margin-bottom:15px;">👥 员工账户管理</h3>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
+                    <input type="text" id="newEmpName" placeholder="新员工姓名">
+                    <input type="password" id="newEmpPass" placeholder="设置密码">
+                    <button onclick="addEmployee()">➕ 添加员工</button>
+                </div>
+                <div id="employeeList"></div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div style="margin-top:20px;">
+                <h3>📋 记录列表 <span style="font-size:0.8rem;color:#888;">（点击表头可排序）</span></h3>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>姓名</th><th>开单日期</th><th>客户</th><th>电话</th>
+                                <th>数量</th><th>修复金额</th><th>签收</th><th>实收</th>
+                                <th>增值</th><th>地址</th><th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr><td colspan="11" style="text-align:center;padding:30px;">暂无数据，请先登录并添加记录</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 系统核心逻辑 ====================
+        const STORAGE_KEY = 'jade_repair_production_v1';
+        const EMPLOYEE_KEY = 'jade_employees_production_v1';
+        
+        // 初始化员工数据
+        if (!localStorage.getItem(EMPLOYEE_KEY)) {
+            const defaultEmployees = [
+                { name: '员工A', password: '123' },
+                { name: '员工B', password: '123' },
+                { name: '员工C', password: '123' },
+                { name: 'admin', password: 'admin123', role: 'admin' }
+            ];
+            localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(defaultEmployees));
+        }
+        
+        let currentUser = null;
+        let currentTab = 'open';
+        
+        // 工具函数
+        function loadEmployees() {
+            return JSON.parse(localStorage.getItem(EMPLOYEE_KEY) || '[]');
+        }
+        function saveEmployees(emps) {
+            localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(emps));
+        }
+        function loadRecords() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        }
+        function saveRecords(records) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        }
+        
+        function getVisibleRecords() {
+            const all = loadRecords();
+            if (!currentUser) return [];
+            return currentUser.role === 'admin' ? all : all.filter(r => r.employee === currentUser.name);
+        }
+        
+        // 更新员工下拉列表
+        function updateUserSelect() {
+            const select = document.getElementById('userSelect');
+            const employees = loadEmployees();
+            select.innerHTML = employees.map(e => `<option value="${e.name}">${e.name}</option>`).join('');
+        }
+        
+        // 渲染数据表格
+        function renderTable() {
+            const records = getVisibleRecords();
+            const tbody = document.getElementById('tableBody');
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:30px;color:#999;">暂无记录</td></tr>';
+                return;
+            }
+            tbody.innerHTML = records.map(r => `
+                <tr>
+                    <td>${r.employee}</td>
+                    <td>${r.orderDate}</td>
+                    <td>${r.clientInfo}</td>
+                    <td>${r.clientPhone}</td>
+                    <td>${r.jadeCount}</td>
+                    <td>¥${(r.repairAmount || 0).toFixed(2)}</td>
+                    <td>${r.isSigned ? '✅' : '❌'}</td>
+                    <td>¥${(r.actualAmount || 0).toFixed(2)}</td>
+                    <td>¥${(r.appreciationAmount || 0).toFixed(2)}</td>
+                    <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;" title="${r.address}">${r.address || '-'}</td>
+                    <td>
+                        ${canEdit(r) ? `<button class="btn-small btn-danger" onclick="deleteRecord('${r.id}')">删除</button>` : '-'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function canEdit(record) {
+            if (!currentUser) return false;
+            return currentUser.role === 'admin' || record.employee === currentUser.name;
+        }
+        
+        function deleteRecord(id) {
+            if (!confirm('确定删除这条记录吗？')) return;
+            const records = loadRecords().filter(r => r.id !== id);
+            saveRecords(records);
+            renderTable();
+            if (currentTab === 'stats') renderStats();
+        }
+        
+        // 开单提交
+        function submitOpen() {
+            if (!currentUser) return alert('请先登录！');
+            
+            const record = {
+                id: Date.now().toString(),
+                employee: document.getElementById('empName').value.trim(),
+                orderDate: document.getElementById('orderDate').value,
+                clientInfo: document.getElementById('clientInfo').value.trim(),
+                clientPhone: document.getElementById('clientPhone').value.trim(),
+                jadeCount: parseInt(document.getElementById('jadeCount').value) || 1,
+                damageDesc: document.getElementById('damageDesc').value,
+                repairAmount: parseFloat(document.getElementById('repairAmount').value) || 0,
+                isSigned: false,
+                receiveDate: '',
+                paymentDate: '',
+                actualAmount: 0,
+                maintenanceAmount: 0,
+                postage: 0,
+                appreciationAmount: 0,
+                address: document.getElementById('address').value.trim()
+            };
+            
+            if (!record.employee || !record.orderDate || !record.clientInfo || !record.clientPhone) {
+                return alert('请填写完整信息：姓名、日期、客户信息、电话为必填项');
+            }
+            
+            const records = loadRecords();
+            records.push(record);
+            saveRecords(records);
+            renderTable();
+            
+            // 清空部分表单
+            ['clientInfo', 'clientPhone', 'damageDesc', 'repairAmount', 'address'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('jadeCount').value = '1';
+            document.getElementById('orderDate').value = new Date().toISOString().slice(0, 10);
+            
+            alert(`✅ 开单成功！客户：${record.clientInfo}，修复金额：¥${record.repairAmount.toFixed(2)}`);
+        }
+        
+        // 收款提交
+        function submitPayment() {
+            if (!currentUser) return alert('请先登录！');
+            
+            const phone = document.getElementById('searchPhone').value.trim();
+            if (!phone) return alert('请输入客户电话号码');
+            
+            const records = loadRecords();
+            const candidates = records.filter(r => 
+                r.employee === currentUser.name && 
+                r.clientPhone === phone
+            );
+            
+            if (candidates.length === 0) {
+                return alert(`未找到您名下电话 ${phone} 的开单记录，请先进行开单登记`);
+            }
+            
+            const target = candidates[candidates.length - 1]; // 最近一条
+            target.isSigned = document.getElementById('isSigned').checked;
+            target.receiveDate = document.getElementById('receiveDate').value;
+            target.paymentDate = document.getElementById('paymentDate').value;
+            target.actualAmount = parseFloat(document.getElementById('actualAmount').value) || 0;
+            target.maintenanceAmount = parseFloat(document.getElementById('maintenanceAmount').value) || 0;
+            target.postage = parseFloat(document.getElementById('postage').value) || 0;
+            target.appreciationAmount = parseFloat(document.getElementById('appreciationAmount').value) || 0;
+            
+            saveRecords(records);
+            renderTable();
+            
+            document.getElementById('searchPhone').value = '';
+            document.getElementById('matchInfo').style.display = 'none';
+            document.getElementById('isSigned').checked = false;
+            ['receiveDate', 'paymentDate', 'actualAmount', 'maintenanceAmount'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('postage').value = '0';
+            document.getElementById('appreciationAmount').value = '0';
+            
+            alert(`✅ 收款登记成功！客户：${target.clientInfo}，实收：¥${target.actualAmount.toFixed(2)}`);
+        }
+        
+        // 电话搜索匹配
+        document.getElementById('searchPhone').addEventListener('input', function() {
+            const phone = this.value.trim();
+            const matchDiv = document.getElementById('matchInfo');
+            
+            if (!phone || !currentUser) {
+                matchDiv.style.display = 'none';
+                return;
+            }
+            
+            const records = loadRecords().filter(r => 
+                r.employee === currentUser.name && 
+                r.clientPhone === phone
+            );
+            
+            matchDiv.style.display = 'block';
+            if (records.length > 0) {
+                const last = records[records.length - 1];
+                matchDiv.innerHTML = `
+                    🔍 匹配到 <strong>${records.length}</strong> 条记录<br>
+                    最近开单：<strong>${last.clientInfo}</strong> | 
+                    修复金额：<strong>¥${(last.repairAmount || 0).toFixed(2)}</strong> | 
+                    日期：${last.orderDate}
+                    ${last.isSigned ? ' | <span style="color:green;">✓ 已签收</span>' : ' | <span style="color:orange;">未签收</span>'}
+                `;
+            } else {
+                matchDiv.innerHTML = `❌ 未找到电话 <strong>${phone}</strong> 的开单记录`;
+            }
+        });
+        
+        // 统计渲染
+        function renderStats() {
+            const month = document.getElementById('statsMonth').value;
+            const allRecords = loadRecords();
+            const filtered = month ? allRecords.filter(r => r.orderDate && r.orderDate.startsWith(month)) : allRecords;
+            
+            const employees = [...new Set(filtered.map(r => r.employee))];
+            const empData = employees.map(emp => {
+                const empRecords = filtered.filter(r => r.employee === emp);
+                return {
+                    name: emp,
+                    count: empRecords.length,
+                    repairTotal: empRecords.reduce((s, r) => s + (r.repairAmount || 0), 0),
+                    actualTotal: empRecords.reduce((s, r) => s + (r.actualAmount || 0), 0),
+                    appreciationTotal: empRecords.reduce((s, r) => s + (r.appreciationAmount || 0), 0)
+                };
+            });
+            
+            const totalOrders = empData.reduce((s, e) => s + e.count, 0);
+            const totalRepair = empData.reduce((s, e) => s + e.repairTotal, 0);
+            const totalActual = empData.reduce((s, e) => s + e.actualTotal, 0);
+            const maxAmount = Math.max(...empData.map(e => Math.max(e.repairTotal, e.actualTotal, e.appreciationTotal)), 1);
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div style="color:#6b5a45;">📋 总订单数</div>
+                        <div class="stat-number">${totalOrders}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color:#6b5a45;">💰 总修复金额</div>
+                        <div class="stat-number">¥${totalRepair.toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div style="color:#6b5a45;">💵 总实收金额</div>
+                        <div class="stat-number">¥${totalActual.toFixed(2)}</div>
+                    </div>
+                </div>
+                <h4 style="margin-top:20px;">📊 员工数据对比</h4>
+            `;
+            
+            empData.forEach(emp => {
+                const repairPercent = (emp.repairTotal / maxAmount * 100).toFixed(0);
+                const actualPercent = (emp.actualTotal / maxAmount * 100).toFixed(0);
+                const appreciationPercent = (emp.appreciationTotal / maxAmount * 100).toFixed(0);
+                
+                html += `
+                    <div class="chart-bar">
+                        <strong>${emp.name}</strong> (${emp.count}单)
+                        <div class="bar-label"><span>修复金额</span><span>¥${emp.repairTotal.toFixed(0)}</span></div>
+                        <div class="bar-bg"><div class="bar-fill" style="width:${repairPercent}%;background:linear-gradient(135deg,#c9a87c,#a0784a);"></div></div>
+                        <div class="bar-label"><span>实收金额</span><span>¥${emp.actualTotal.toFixed(0)}</span></div>
+                        <div class="bar-bg"><div class="bar-fill" style="width:${actualPercent}%;background:linear-gradient(135deg,#7cb89c,#4a7c5f);"></div></div>
+                        <div class="bar-label"><span>增值金额</span><span>¥${emp.appreciationTotal.toFixed(0)}</span></div>
+                        <div class="bar-bg"><div class="bar-fill" style="width:${appreciationPercent}%;background:linear-gradient(135deg,#c9b87c,#a08a4a);"></div></div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('statsContent').innerHTML = html || '<p>暂无数据</p>';
+        }
+        
+        // 员工管理
+        function renderEmployeeList() {
+            const employees = loadEmployees().filter(e => e.name !== 'admin');
+            document.getElementById('employeeList').innerHTML = employees.map(e => `
+                <div style="display:flex;gap:10px;align-items:center;margin:8px 0;padding:8px;background:white;border-radius:12px;">
+                    <span style="font-weight:600;min-width:80px;">👤 ${e.name}</span>
+                    <input type="password" placeholder="新密码" id="pass_${e.name}" style="width:120px;">
+                    <button class="btn-small" onclick="changePassword('${e.name}')">修改密码</button>
+                    <button class="btn-small btn-danger" onclick="deleteEmployee('${e.name}')">删除</button>
+                </div>
+            `).join('');
+        }
+        
+        window.addEmployee = function() {
+            const name = document.getElementById('newEmpName').value.trim();
+            const pass = document.getElementById('newEmpPass').value.trim();
+            if (!name || !pass) return alert('请填写姓名和密码');
+            const employees = loadEmployees();
+            if (employees.find(e => e.name === name)) return alert('员工已存在');
+            employees.push({ name, password: pass });
+            saveEmployees(employees);
+            updateUserSelect();
+            renderEmployeeList();
+            document.getElementById('newEmpName').value = '';
+            document.getElementById('newEmpPass').value = '';
+            alert('员工添加成功！');
+        };
+        
+        window.changePassword = function(name) {
+            const newPass = document.getElementById(`pass_${name}`).value;
+            if (!newPass) return alert('请输入新密码');
+            const employees = loadEmployees();
+            const emp = employees.find(e => e.name === name);
+            if (emp) emp.password = newPass;
+            saveEmployees(employees);
+            alert('密码已更新');
+        };
+        
+        window.deleteEmployee = function(name) {
+            if (!confirm(`确定删除员工 ${name} 吗？`)) return;
+            const employees = loadEmployees().filter(e => e.name !== name);
+            saveEmployees(employees);
+            updateUserSelect();
+            renderEmployeeList();
+        };
+        
+        // 标签页切换
+        window.switchTab = function(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
+            
+            document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tab === 'stats') renderStats();
+            if (tab === 'employee') renderEmployeeList();
+        };
+        
+        // 登录
+        window.login = function() {
+            const username = document.getElementById('userSelect').value;
+            const password = document.getElementById('passwordInput').value;
+            const employees = loadEmployees();
+            const account = employees.find(e => e.name === username);
+            
+            if (!account || account.password !== password) {
+                return alert('❌ 密码错误！\n\n员工默认密码：123\n管理员密码：admin123');
+            }
+            
+            currentUser = {
+                name: username,
+                role: account.role || 'employee'
+            };
+            
+            document.getElementById('loginPanel').classList.add('hidden');
+            document.getElementById('userPanel').classList.remove('hidden');
+            document.getElementById('currentUserDisplay').textContent = 
+                `${currentUser.name} (${currentUser.role === 'admin' ? '管理员' : '员工'})`;
+            document.getElementById('appContent').classList.remove('hidden');
+            
+            // 管理员显示员工管理
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.classList.toggle('hidden', currentUser.role !== 'admin');
+            });
+            
+            // 设置员工姓名
+            if (currentUser.role === 'employee') {
+                document.getElementById('empName').value = currentUser.name;
+                document.getElementById('empName').disabled = true;
+            } else {
+                document.getElementById('empName').disabled = false;
+                document.getElementById('empName').value = '';
+            }
+            
+            document.getElementById('orderDate').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('statsMonth').value = new Date().toISOString().slice(0, 7);
+            document.getElementById('passwordInput').value = '';
+            
+            updateUserSelect();
+            renderTable();
+            switchTab('open');
+        };
+        
+        // 退出登录
+        window.logout = function() {
+            currentUser = null;
+            document.getElementById('loginPanel').classList.remove('hidden');
+            document.getElementById('userPanel').classList.add('hidden');
+            document.getElementById('appContent').classList.add('hidden');
+        };
+        
+        // 初始化
+        document.getElementById('orderDate').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('statsMonth').value = new Date().toISOString().slice(0, 7);
+        updateUserSelect();
+        
+        console.log('🍃 玉润修坊系统已就绪');
+        console.log('员工默认密码：123');
+        console.log('管理员密码：admin123');
+    </script>
+</body>
+</html>
